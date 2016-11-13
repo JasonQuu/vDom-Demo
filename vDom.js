@@ -39,12 +39,26 @@ vElement.prototype.diff = function (oldTree, newTree) {
   return patches
 }
 
-// 对两棵树进行深度优先遍历
-function dfsWalk (oldNode, newNode, index, patches) {
-  // 对比oldNode和newNode的不同，记录下来
-  patches[index] = [...]
+function patch (node, patches) {
+  var walker = {index: 0}
+  dfsWalk(node, walker, patches)
+}
 
-  diffChildren(oldNode.children, newNode.children, index, patches)
+function dfsWalk (node, walker, patches) {
+  var currentPatches = patches[walker.index] // 从patches拿出当前节点的差异
+
+  var len = node.childNodes
+    ? node.childNodes.length
+    : 0
+  for (var i = 0; i < len; i++) { // 深度遍历子节点
+    var child = node.childNodes[i]
+    walker.index++
+    dfsWalk(child, walker, patches)
+  }
+
+  if (currentPatches) {
+    applyPatches(node, currentPatches) // 对当前节点进行DOM操作
+  }
 }
 
 // 遍历子节点
